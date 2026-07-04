@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node src/index.js",
     "check": "node src/index.js --once",
+    "check:notify": "node src/index.js --notify-once",
     "test-alert": "node src/index.js --test-alert",
     "test": "node --test"
   }

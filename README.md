@@ -38,6 +38,18 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 npm run test-alert
 ```
 
+## 무료 배포
+
+Render Background Worker가 유료로 잡힌다면 GitHub Actions 스케줄러가 가장 간단한 무료 대안입니다. 이 레포에는 5분마다 확인하는 `.github/workflows/stock-monitor.yml`이 포함되어 있습니다.
+
+GitHub repo의 `Settings` -> `Secrets and variables` -> `Actions`에 아래 secret을 추가하세요.
+
+```text
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+```
+
+그 다음 `Actions` 탭에서 `Nintendo Switch 2 stock monitor`를 수동 실행하거나, 기본 스케줄이 돌 때까지 기다리면 됩니다. 자세한 비교는 `docs/free-deploy.md`를 참고하세요.
+
 ## 이메일 알림 설정
 
 SMTP를 사용할 수 있습니다. Gmail은 일반 비밀번호가 아니라 앱 비밀번호가 필요합니다.

@@ -25,6 +25,11 @@ if (args.has("--test-alert")) {
   process.exit(0);
 }
 
+if (args.has("--notify-once")) {
+  await runOnce(config, { notify: true });
+  process.exit(0);
+}
+
 if (args.has("--once")) {
   await runOnce(config, { notify: false });
   process.exit(0);
@@ -135,6 +140,7 @@ function printHelp() {
   console.log(`Usage:
   npm start             Monitor continuously and notify on restock
   npm run check         Check once without sending stock alerts
+  npm run check:notify  Check once and notify if stock is detected
   npm run test-alert    Send a test notification
 
 Configuration is read from .env. Start with:
