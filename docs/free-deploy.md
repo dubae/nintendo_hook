@@ -33,6 +33,8 @@ Value: https://discord.com/api/webhooks/...
 4. `Actions` 탭에서 `Nintendo Switch 2 stock monitor` workflow를 선택합니다.
 5. `Run workflow`로 수동 실행해서 로그를 확인합니다.
 
+Discord까지 GitHub에서 정상 연결됐는지 확인하려면 `Run workflow`를 누를 때 `Send a Discord test alert instead of checking stock` 옵션을 켜세요. Discord 채널에 테스트 메시지가 오면 secret 설정이 정상입니다.
+
 현재 workflow는 `2-59/5 * * * *`로 설정되어 있습니다. 매시 정각 부하를 피하려고 00분이 아니라 02, 07, 12분처럼 돕니다.
 
 재고가 처음 감지되면 알림을 보내고, 이후 계속 재고 있음 상태이면 기본적으로 반복 알림을 보내지 않습니다. 다시 품절 상태를 확인한 뒤 재고가 풀리면 다시 알립니다.
