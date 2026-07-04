@@ -1,0 +1,16 @@
+{
+  "name": "nintendo-switch2-stock-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Nintendo Korea store stock monitor with Discord, webhook, and SMTP notifications.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node src/index.js --once",
+    "test-alert": "node src/index.js --test-alert",
+    "test": "node --test"
+  }
+}

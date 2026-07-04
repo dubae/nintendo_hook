@@ -1,0 +1,5 @@
+.env
+.monitor-state.json
+node_modules/
+npm-debug.log*
+.DS_Store
