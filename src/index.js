@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import { checkStock, STATUS } from "./checkStock.js";
 import { getConfig, hasAnyNotifier, loadDotEnv } from "./config.js";
 import { sendErrorNotification, sendStockNotifications } from "./notifiers.js";
@@ -68,12 +69,14 @@ async function runOnce(currentConfig, options) {
     console.log(formatResult(result));
 
     const shouldNotify = options.notify && shouldAlertForStock(result, state, currentConfig);
+    let notificationOutcomes = [];
     if (shouldNotify) {
-      const outcomes = await sendStockNotifications(result, currentConfig);
-      logNotificationOutcomes(outcomes);
+      notificationOutcomes = await sendStockNotifications(result, currentConfig);
+      logNotificationOutcomes(notificationOutcomes);
     }
 
     await writeState(currentConfig.stateFile, nextSuccessState(state, result, shouldNotify));
+    await writeGitHubStepSummary({ result, didAlert: shouldNotify, notificationOutcomes });
     return result;
   } catch (error) {
     console.error(`[${new Date().toISOString()}] check failed: ${error.message}`);
@@ -86,6 +89,7 @@ async function runOnce(currentConfig, options) {
     }
 
     await writeState(currentConfig.stateFile, errorState);
+    await writeGitHubStepSummary({ error, errorState });
     if (!options.notify) {
       throw error;
     }
@@ -145,4 +149,45 @@ function printHelp() {
 
 Configuration is read from .env. Start with:
   cp .env.example .env`);
+}
+
+async function writeGitHubStepSummary({ result, didAlert = false, notificationOutcomes = [], error, errorState }) {
+  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryFile) {
+    return;
+  }
+
+  const lines = ["## Nintendo Switch 2 Stock Monitor", ""];
+
+  if (result) {
+    lines.push(
+      `- Status: \`${result.status}\``,
+      `- Product: ${result.productName || "Nintendo Switch 2"}`,
+      `- Evidence: \`${result.evidence || "n/a"}\``,
+      `- Source: \`${result.source}\``,
+      `- Checked at: \`${result.checkedAt}\``,
+      `- Alert sent: \`${didAlert ? "yes" : "no"}\``,
+      `- URL: ${result.url}`
+    );
+
+    if (notificationOutcomes.length > 0) {
+      lines.push("", "### Notifications");
+      for (const outcome of notificationOutcomes) {
+        lines.push(`- ${outcome.channel}: \`${outcome.ok ? "ok" : `failed - ${outcome.error}`}\``);
+      }
+    }
+  } else {
+    lines.push(
+      "- Status: `error`",
+      `- Error: \`${error?.message || "unknown error"}\``,
+      `- Consecutive errors: \`${errorState?.consecutiveErrors || 0}\``,
+      `- Checked at: \`${new Date().toISOString()}\``
+    );
+  }
+
+  try {
+    await fs.appendFile(summaryFile, `${lines.join("\n")}\n`, "utf8");
+  } catch (summaryError) {
+    console.warn(`Could not write GitHub step summary: ${summaryError.message}`);
+  }
 }
